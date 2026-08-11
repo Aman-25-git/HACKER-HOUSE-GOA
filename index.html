@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>HH Goa 2026 — Badge Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#070f18;
+  --navy:#0d2136;
+  --navy2:#123049;
+  --coral:#ff5a36;
+  --mango:#ffb238;
+  --pink:#ff2e76;
+  --lime:#c6ff4a;
+  --sand:#f5ecd6;
+  --sand-dim:#b9ad8d;
+  --line: rgba(245,236,214,.14);
+  --r-lg:22px;
+  --shadow: 0 20px 60px -20px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(900px 500px at 12% -10%, rgba(255,90,54,.28), transparent 60%),
+    radial-gradient(700px 500px at 110% 0%, rgba(198,255,74,.14), transparent 55%),
+    var(--ink);
+  color:var(--sand);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+.bg-grid{
+  position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(1200px 700px at 50% 0%, black, transparent 75%);
+}
+.wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:22px 18px 80px;}
+
+/* ---- header ---- */
+header.top{display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:26px; flex-wrap:wrap;}
+.brand{display:flex; align-items:center; gap:12px;}
+.brand svg{width:42px; height:42px; flex:none;}
+.brand .word{display:flex; flex-direction:column; line-height:1;}
+.brand .word b{
+  font-family:'Space Grotesk'; font-weight:700; font-size:19px; letter-spacing:.01em;
+  background:linear-gradient(90deg,var(--pink),var(--coral) 55%,var(--mango));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.brand .word span{font-family:'JetBrains Mono'; font-size:10.5px; letter-spacing:.14em; color:var(--sand-dim); margin-top:4px; text-transform:uppercase;}
+.tag-pill{
+  font-family:'JetBrains Mono'; font-size:11.5px; letter-spacing:.05em; color:var(--sand);
+  background:rgba(245,236,214,.06); border:1px solid var(--line); padding:8px 14px; border-radius:99px;
+  display:flex; align-items:center; gap:8px;
+}
+.tag-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px var(--lime); flex:none;}
+
+/* ---- hero line ---- */
+.hero{margin:8px 0 28px;}
+.hero h1{
+  font-family:'Space Grotesk'; font-weight:700; font-size:clamp(28px,4.6vw,46px);
+  margin:0 0 8px; line-height:1.04; letter-spacing:-.01em;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--coral),var(--mango) 55%,var(--lime));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.hero p{margin:0; color:var(--sand-dim); font-size:15px; max-width:520px;}
+
+/* ---- format toggle ---- */
+.switch{
+  display:inline-flex; background:rgba(245,236,214,.05); border:1px solid var(--line);
+  padding:4px; border-radius:99px; gap:4px; margin:20px 0 0;
+}
+.switch button{
+  font-family:'JetBrains Mono'; font-size:12.5px; letter-spacing:.04em; text-transform:uppercase;
+  border:none; background:transparent; color:var(--sand-dim); padding:10px 18px; border-radius:99px; cursor:pointer;
+  transition:.2s;
+}
+.switch button.active{
+  background:linear-gradient(90deg,var(--coral),var(--pink));
+  color:#fff;
+}
+
+/* ---- layout ---- */
+.grid{display:grid; grid-template-columns: 1fr 1fr; gap:26px; margin-top:24px; align-items:start;}
+@media (max-width:900px){.grid{grid-template-columns:1fr;}}
+
+.panel{
+  background:linear-gradient(180deg, rgba(245,236,214,.045), rgba(245,236,214,.015));
+  border:1px solid var(--line); border-radius:var(--r-lg); padding:22px;
+}
+.panel h3{
+  font-family:'JetBrains Mono'; font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--sand-dim); margin:0 0 16px; display:flex; align-items:center; gap:8px;
+}
+.panel h3::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--lime);}
+
+/* dropzone */
+.dropzone{
+  border:1.5px dashed rgba(245,236,214,.28); border-radius:16px; padding:26px 16px;
+  text-align:center; cursor:pointer; transition:.2s; position:relative; overflow:hidden;
+  background:rgba(0,0,0,.15);
+}
+.dropzone:hover, .dropzone.drag{border-color:var(--lime); background:rgba(198,255,74,.05);}
+.dropzone svg{width:34px; height:34px; margin-bottom:10px; opacity:.8;}
+.dropzone b{display:block; font-size:14.5px; margin-bottom:4px;}
+.dropzone span{font-size:12.5px; color:var(--sand-dim);}
+.dropzone input{position:absolute; inset:0; opacity:0; cursor:pointer;}
+.file-note{font-family:'JetBrains Mono'; font-size:11px; color:var(--sand-dim); margin-top:10px; text-align:center;}
+.file-note.err{color:var(--coral);}
+
+/* adjust box */
+.adjust{margin-top:16px; display:none;}
+.adjust.show{display:block;}
+.adjust-box{
+  position:relative; width:100%; aspect-ratio:1/1; border-radius:14px; overflow:hidden;
+  background:#000; touch-action:none; cursor:grab; border:1px solid var(--line);
+}
+.adjust-box.card{aspect-ratio:1/1;}
+.adjust-box:active{cursor:grabbing;}
+.adjust-box img{position:absolute; top:0; left:0; transform-origin:0 0; user-select:none; -webkit-user-drag:none; pointer-events:none;}
+.adjust-hint{
+  position:absolute; bottom:8px; left:50%; transform:translateX(-50%);
+  font-family:'JetBrains Mono'; font-size:10px; color:rgba(255,255,255,.75);
+  background:rgba(0,0,0,.45); padding:5px 10px; border-radius:99px; pointer-events:none; letter-spacing:.04em;
+}
+.zoomrow{display:flex; align-items:center; gap:10px; margin-top:12px;}
+.zoomrow svg{width:16px; height:16px; flex:none; opacity:.7;}
+input[type=range]{
+  -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:99px;
+  background:linear-gradient(90deg,var(--coral),var(--lime)); outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--sand);
+  border:3px solid var(--coral); cursor:pointer;
+}
+input[type=range]::-moz-range-thumb{width:16px; height:16px; border-radius:50%; background:var(--sand); border:3px solid var(--coral); cursor:pointer;}
+
+/* form fields */
+.field{margin-top:14px;}
+.field:first-child{margin-top:0;}
+.field label{display:block; font-family:'JetBrains Mono'; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--sand-dim); margin-bottom:7px;}
+.field input[type=text]{
+  width:100%; background:rgba(0,0,0,.25); border:1px solid var(--line); border-radius:10px;
+  padding:12px 14px; color:var(--sand); font-family:'Inter'; font-size:14.5px; outline:none; transition:.15s;
+}
+.field input[type=text]:focus{border-color:var(--lime); background:rgba(0,0,0,.35);}
+.field input[type=text]::placeholder{color:rgba(245,236,214,.3);}
+.title-row{display:flex; gap:8px; align-items:stretch;}
+.title-row input{flex:1;}
+.shuffle-btn{
+  flex:none; width:44px; border-radius:10px; border:1px solid var(--line); background:rgba(198,255,74,.08);
+  color:var(--lime); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s;
+}
+.shuffle-btn:hover{background:rgba(198,255,74,.18); transform:rotate(20deg);}
+.shuffle-btn svg{width:18px; height:18px;}
+
+/* preview panel */
+.preview-wrap{display:flex; flex-direction:column; align-items:center; gap:16px;}
+.canvas-shell{
+  position:relative; width:100%; max-width:420px; border-radius:18px; overflow:hidden;
+  box-shadow:var(--shadow); background:#000;
+}
+canvas{display:block; width:100%; height:auto;}
+.actions{display:flex; gap:10px; width:100%; max-width:420px; flex-wrap:wrap;}
+.btn{
+  flex:1; min-width:140px; display:flex; align-items:center; justify-content:center; gap:8px;
+  font-family:'Space Grotesk'; font-weight:600; font-size:14.5px; letter-spacing:.01em;
+  padding:15px 16px; border-radius:12px; border:none; cursor:pointer; transition:.15s; text-decoration:none;
+}
+.btn svg{width:17px; height:17px;}
+.btn.primary{background:linear-gradient(90deg,var(--coral),var(--pink)); color:#fff; box-shadow:0 10px 26px -8px rgba(255,46,118,.55);}
+.btn.primary:hover{filter:brightness(1.08); transform:translateY(-1px);}
+.btn.secondary{background:rgba(245,236,214,.07); color:var(--sand); border:1px solid var(--line);}
+.btn.secondary:hover{background:rgba(245,236,214,.13);}
+.btn:disabled{opacity:.4; cursor:not-allowed; transform:none !important;}
+.share-note{font-family:'JetBrains Mono'; font-size:11px; color:var(--sand-dim); text-align:center; max-width:400px; line-height:1.6;}
+.share-note b{color:var(--lime);}
+
+.privacy{
+  margin-top:36px; display:flex; align-items:center; gap:10px; justify-content:center;
+  font-family:'JetBrains Mono'; font-size:11.5px; color:var(--sand-dim); text-align:center; flex-wrap:wrap;
+}
+.privacy svg{width:14px; height:14px; flex:none; opacity:.7;}
+
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); opacity:0;
+  background:var(--sand); color:var(--ink); font-family:'JetBrains Mono'; font-size:12.5px; font-weight:600;
+  padding:12px 20px; border-radius:99px; box-shadow:var(--shadow); z-index:50; transition:.3s; pointer-events:none;
+  display:flex; align-items:center; gap:8px;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast svg{width:15px; height:15px;}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="22" fill="url(#lg1)"/>
+        <path d="M9 30c4-9 8-13 15-13s11 4 15 13" stroke="#0d2136" stroke-width="2.4" stroke-linecap="round" fill="none"/>
+        <circle cx="24" cy="17" r="3.4" fill="#0d2136"/>
+        <path d="M14 30v-5M19 30v-8M24 30v-10M29 30v-8M34 30v-5" stroke="#0d2136" stroke-width="2.2" stroke-linecap="round"/>
+        <defs><linearGradient id="lg1" x1="0" y1="0" x2="48" y2="48"><stop stop-color="#ff2e76"/><stop offset=".5" stop-color="#ff5a36"/><stop offset="1" stop-color="#ffb238"/></linearGradient></defs>
+      </svg>
+      <div class="word"><b>HH GOA 2026</b><span>Hacker House · Badge Lab</span></div>
+    </div>
+    <div class="tag-pill"><span class="dot"></span>Runs fully in your browser — nothing uploaded</div>
+  </header>
+
+  <div class="hero">
+    <h1>Turn your photo into<br><em>proof you're building</em> in Goa.</h1>
+    <p>Upload a photo, get a branded HH Goa 2026 graphic in seconds. Download it, or send it straight to X.</p>
+  </div>
+
+  <div class="switch" role="tablist">
+    <button id="tabPfp" class="active">PFP Frame</button>
+    <button id="tabCard">Builder ID</button>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: controls -->
+    <div class="panel">
+      <h3>01 · Your photo</h3>
+      <label class="dropzone" id="dropzone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c6ff4a" stroke-width="1.6"><path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <b>Tap to upload, or drag a photo here</b>
+        <span>JPG, PNG, WEBP, HEIC — any crop, any orientation</span>
+        <input type="file" id="fileInput" accept="image/*,.heic,.heif">
+      </label>
+      <div class="file-note" id="fileNote"></div>
+
+      <div class="adjust" id="adjustWrap">
+        <div class="adjust-box" id="adjustBox">
+          <img id="adjustImg" draggable="false" alt="">
+          <div class="adjust-hint">drag to reposition</div>
+        </div>
+        <div class="zoomrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#b9ad8d" stroke-width="1.8"><circle cx="10" cy="10" r="6"/><path d="M20 20l-4.35-4.35" stroke-linecap="round"/></svg>
+          <input type="range" id="zoomSlider" min="100" max="300" value="100">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#b9ad8d" stroke-width="1.8"><circle cx="10" cy="10" r="6"/><path d="M20 20l-4.35-4.35" stroke-linecap="round"/><path d="M7 10h6" stroke-linecap="round"/><path d="M10 7v6" stroke-linecap="round"/></svg>
+        </div>
+      </div>
+
+      <div id="cardFields" style="display:none">
+        <h3 style="margin-top:22px">02 · Builder details</h3>
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="nameInput" placeholder="e.g. Aanya Rao" maxlength="26">
+        </div>
+        <div class="field">
+          <label>Stack / role</label>
+          <input type="text" id="roleInput" placeholder="e.g. Full-stack, AI, Design" maxlength="34">
+        </div>
+        <div class="field">
+          <label>Builder title <span style="color:var(--sand-dim); text-transform:none; letter-spacing:0;">(auto-generated)</span></label>
+          <div class="title-row">
+            <input type="text" id="titleInput" placeholder="reroll for a title →" readonly>
+            <button class="shuffle-btn" id="shuffleBtn" title="Reroll title" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 22v-6h6" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 9a9 9 0 0114.5-4.5L21 8M20.5 15a9 9 0 01-14.5 4.5L3 16" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: preview -->
+    <div class="panel preview-wrap">
+      <h3 style="align-self:flex-start">Live preview</h3>
+      <div class="canvas-shell"><canvas id="outCanvas"></canvas></div>
+      <div class="actions">
+        <button class="btn secondary" id="downloadBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12" stroke-linecap="round"/><path d="M7 10l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke-linecap="round"/></svg>
+          Download
+        </button>
+        <button class="btn primary" id="shareBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.53 3H21l-7.5 8.57L22 21h-6.36l-4.98-6.03L4.94 21H1.46l8.06-9.2L1 3h6.5l4.5 5.47L17.53 3zm-1.11 16.2h1.77L7.66 4.7H5.76l10.66 14.5z"/></svg>
+          Share to X
+        </button>
+      </div>
+      <div class="share-note">Sharing saves your image, then opens X with your caption + <b>#FrameInGoa</b> ready — just drop the image into the tweet.</div>
+    </div>
+  </div>
+
+  <div class="privacy">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+    Your photo never leaves your device — everything renders locally on canvas.
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ======================= STATE ======================= */
+const state = {
+  format: 'pfp',
+  img: null,           // decoded image (ImageBitmap or HTMLImageElement)
+  iw: 0, ih: 0,
+  zoom: 1,              // 1..3 user zoom on top of cover-fit
+  tx: 0, ty: 0,          // top-left offset of image within the adjust box (css px)
+  boxSize: 0,
+  name: '', role: '', title: '',
+  badgeNo: '0427',
+  fontsReady: false,
+};
+
+const $ = (id) => document.getElementById(id);
+const canvas = $('outCanvas');
+const ctx = canvas.getContext('2d');
+const toastEl = $('toast');
+
+function toast(msg, icon){
+  toastEl.innerHTML = (icon||'') + '<span>'+msg+'</span>';
+  toastEl.classList.add('show');
+  clearTimeout(toastEl._t);
+  toastEl._t = setTimeout(()=>toastEl.classList.remove('show'), 2600);
+}
+
+/* ======================= FONTS ======================= */
+Promise.all([
+  document.fonts.load('700 60px "Space Grotesk"'),
+  document.fonts.load('600 24px "Space Grotesk"'),
+  document.fonts.load('500 20px "JetBrains Mono"'),
+  document.fonts.load('600 20px "JetBrains Mono"'),
+]).then(()=>{ state.fontsReady = true; render(); }).catch(()=>{ state.fontsReady = true; render(); });
+
+/* ======================= TABS ======================= */
+$('tabPfp').addEventListener('click', ()=>setFormat('pfp'));
+$('tabCard').addEventListener('click', ()=>setFormat('card'));
+function setFormat(f){
+  state.format = f;
+  $('tabPfp').classList.toggle('active', f==='pfp');
+  $('tabCard').classList.toggle('active', f==='card');
+  $('cardFields').style.display = f==='card' ? 'block' : 'none';
+  $('adjustBox').classList.toggle('card', true);
+  layoutAdjustBox();
+  render();
+}
+
+/* ======================= FILE UPLOAD ======================= */
+const dropzone = $('dropzone');
+const fileInput = $('fileInput');
+const fileNote = $('fileNote');
+
+['dragenter','dragover'].forEach(ev=>dropzone.addEventListener(ev, e=>{e.preventDefault(); dropzone.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dropzone.addEventListener(ev, e=>{e.preventDefault(); dropzone.classList.remove('drag');}));
+dropzone.addEventListener('drop', e=>{
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if(f) handleFile(f);
+});
+fileInput.addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(f) handleFile(f);
+});
+
+let heicLibPromise = null;
+function loadHeicLib(){
+  if(heicLibPromise) return heicLibPromise;
+  heicLibPromise = new Promise((resolve)=>{
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js';
+    s.onload = ()=>resolve(true);
+    s.onerror = ()=>resolve(false);
+    document.head.appendChild(s);
+  });
+  return heicLibPromise;
+}
+
+async function handleFile(file){
+  fileNote.textContent = '';
+  fileNote.className = 'file-note';
+  const isHeic = /heic|heif/i.test(file.type) || /\.heic$|\.heif$/i.test(file.name);
+
+  try{
+    let blob = file;
+    if(isHeic){
+      fileNote.textContent = 'Converting HEIC photo…';
+      const ok = await loadHeicLib();
+      if(ok && window.heic2any){
+        try{
+          blob = await window.heic2any({ blob: file, toType: 'image/jpeg', quality: 0.92 });
+          if(Array.isArray(blob)) blob = blob[0];
+        }catch(e){ /* fall through, try native decode */ }
+      }
+    }
+    const bitmap = await decodeImage(blob);
+    state.img = bitmap;
+    state.iw = bitmap.width || bitmap.naturalWidth;
+    state.ih = bitmap.height || bitmap.naturalHeight;
+    resetAdjust();
+    fileNote.textContent = 'Photo loaded ✓';
+    $('downloadBtn').disabled = false;
+    $('shareBtn').disabled = false;
+    render();
+  }catch(err){
+    console.error(err);
+    fileNote.textContent = "Couldn't read that photo. Try converting it to JPG/PNG and upload again.";
+    fileNote.className = 'file-note err';
+  }
+}
+
+async function decodeImage(blob){
+  if('createImageBitmap' in window){
+    try{
+      return await createImageBitmap(blob, { imageOrientation: 'from-image' });
+    }catch(e){ /* fall through */ }
+  }
+  return await new Promise((resolve,reject)=>{
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = ()=>resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+/* ======================= ADJUST BOX (drag / zoom) ======================= */
+const adjustWrap = $('adjustWrap');
+const adjustBox = $('adjustBox');
+const adjustImg = $('adjustImg');
+const zoomSlider = $('zoomSlider');
+
+function resetAdjust(){
+  adjustWrap.classList.add('show');
+  // draw the raw image into an offscreen canvas to get a normal <img> src (handles ImageBitmap)
+  const off = document.createElement('canvas');
+  off.width = state.iw; off.height = state.ih;
+  off.getContext('2d').drawImage(state.img, 0, 0);
+  adjustImg.src = off.toDataURL('image/jpeg', 0.92);
+  state.zoom = 1;
+  zoomSlider.value = 100;
+  layoutAdjustBox();
+}
+
+function layoutAdjustBox(){
+  if(!state.img) return;
+  requestAnimationFrame(()=>{
+    const rect = adjustBox.getBoundingClientRect();
+    state.boxSize = rect.width;
+    const baseScale = Math.max(rect.width/state.iw, rect.height/state.ih);
+    const eff = baseScale * state.zoom;
+    const dw = state.iw*eff, dh = state.ih*eff;
+    if(state.tx === undefined || state._lastKey !== state.format){
+      state.tx = (rect.width - dw)/2;
+      state.ty = (rect.height - dh)/2;
+    }
+    clampOffset(rect.width, rect.height, dw, dh);
+    applyImgTransform(eff);
+  });
+}
+
+function clampOffset(bw, bh, dw, dh){
+  const minTx = Math.min(0, bw-dw), maxTx = 0;
+  const minTy = Math.min(0, bh-dh), maxTy = 0;
+  state.tx = Math.max(minTx, Math.min(maxTx, state.tx));
+  state.ty = Math.max(minTy, Math.min(maxTy, state.ty));
+}
+
+function applyImgTransform(effScale){
+  adjustImg.style.width = (state.iw*effScale)+'px';
+  adjustImg.style.height = (state.ih*effScale)+'px';
+  adjustImg.style.transform = `translate(${state.tx}px, ${state.ty}px)`;
+}
+
+function currentEffScale(){
+  const rect = adjustBox.getBoundingClientRect();
+  const baseScale = Math.max(rect.width/state.iw, rect.height/state.ih);
+  return baseScale * state.zoom;
+}
+
+let dragging=false, dragStart={x:0,y:0}, startOffset={x:0,y:0};
+function pointerDown(e){
+  if(!state.img) return;
+  dragging = true;
+  const p = getPoint(e);
+  dragStart = p;
+  startOffset = {x:state.tx, y:state.ty};
+  adjustBox.setPointerCapture && e.pointerId!==undefined && adjustBox.setPointerCapture(e.pointerId);
+}
+function pointerMove(e){
+  if(!dragging || !state.img) return;
+  const p = getPoint(e);
+  const rect = adjustBox.getBoundingClientRect();
+  const eff = currentEffScale();
+  const dw = state.iw*eff, dh = state.ih*eff;
+  state.tx = startOffset.x + (p.x-dragStart.x);
+  state.ty = startOffset.y + (p.y-dragStart.y);
+  clampOffset(rect.width, rect.height, dw, dh);
+  applyImgTransform(eff);
+  scheduleRender();
+}
+function pointerUp(){ dragging=false; }
+function getPoint(e){
+  const rect = adjustBox.getBoundingClientRect();
+  const cx = e.touches ? e.touches[0].clientX : e.clientX;
+  const cy = e.touches ? e.touches[0].clientY : e.clientY;
+  return {x: cx-rect.left, y: cy-rect.top};
+}
+adjustBox.addEventListener('pointerdown', pointerDown);
+window.addEventListener('pointermove', pointerMove);
+window.addEventListener('pointerup', pointerUp);
+adjustBox.addEventListener('touchstart', pointerDown, {passive:true});
+window.addEventListener('touchmove', pointerMove, {passive:true});
+window.addEventListener('touchend', pointerUp);
+
+zoomSlider.addEventListener('input', ()=>{
+  const newZoom = zoomSlider.value/100;
+  const rect = adjustBox.getBoundingClientRect();
+  const oldEff = currentEffScale();
+  // keep center point stable while zooming
+  const cx = rect.width/2, cy = rect.height/2;
+  const relX = (cx - state.tx)/oldEff, relY = (cy - state.ty)/oldEff;
+  state.zoom = newZoom;
+  const newEff = currentEffScale();
+  state.tx = cx - relX*newEff;
+  state.ty = cy - relY*newEff;
+  const dw = state.iw*newEff, dh = state.ih*newEff;
+  clampOffset(rect.width, rect.height, dw, dh);
+  applyImgTransform(newEff);
+  scheduleRender();
+});
+window.addEventListener('resize', ()=>{ if(state.img) layoutAdjustBox(); });
+
+/* ======================= CARD FIELDS ======================= */
+const nameInput = $('nameInput');
+const roleInput = $('roleInput');
+const titleInput = $('titleInput');
+
+nameInput.addEventListener('input', ()=>{ state.name = nameInput.value; scheduleRender(); });
+roleInput.addEventListener('input', ()=>{
+  state.role = roleInput.value;
+  regenerateTitle(false);
+  scheduleRender();
+});
+$('shuffleBtn').addEventListener('click', ()=>{ regenerateTitle(true); scheduleRender(); });
+
+const TITLE_POOL = {
+  ai: ["Neural Net Whisperer","Prompt Tide Alchemist","Vector Space Voyager","Model Weight Wave Rider"],
+  frontend: ["Pixel Tide Sculptor","Component Wave Shaper","Layout Lagoon Architect","CSS Sunset Wrangler"],
+  backend: ["Uptime Lifeguard","Server Sunworshipper","Latency Tidepooler","Queue Coast Keeper"],
+  data: ["Dataframe Beachcomber","Pipeline Tide Charter","Query Reef Diver"],
+  design: ["Pixel Tide Sculptor","Interface Sun Sketcher","Prototype Palm Carver"],
+  product: ["Roadmap Castaway","Vision Tidepooler","Feature Flag Skipper"],
+  founder: ["Chief Vibe Officer","Roadmap Castaway","Runway Sunworshipper"],
+  crypto: ["Chain Beachcomber","Ledger Lagoon Keeper","Block Tide Miner"],
+  mobile: ["App Store Surf Instructor","Native Wave Shipper"],
+  security: ["Firewall Tide Guard","Exploit Reef Ranger"],
+  default: ["Midnight Merge Surfer","Caffeine-Powered Wave Hacker","Bug-Squashing Beach Bum","Ship-It Sunworshipper","Async Alchemist","Terminal Tide Chaser","Full-Stack Flip-Flop Engineer","Deploy-and-Dive Specialist","Sandy Keyboard Warrior","Golden-Hour Git Pusher"]
+};
+function hashStr(s){
+  let h=0; for(let i=0;i<s.length;i++){ h = (h<<5)-h + s.charCodeAt(i); h|=0; }
+  return Math.abs(h);
+}
+function regenerateTitle(shuffle){
+  const role = (state.role||'').toLowerCase();
+  let pool = TITLE_POOL.default;
+  const map = [['ai',/ai|ml|machine learning|llm|gpt|neural/],['frontend',/front[- ]?end|react|vue|ui\b/],
+    ['backend',/back[- ]?end|api|infra|devops|server/],['data',/data|analytics|etl/],
+    ['design',/design|figma|ux/],['product',/product|pm\b/],['founder',/founder|ceo|cofounder|co-founder/],
+    ['crypto',/crypto|web3|blockchain|solidity|chain/],['mobile',/mobile|ios|android|flutter|swift/],
+    ['security',/security|infosec|pentest/]];
+  for(const [key,re] of map){ if(re.test(role)){ pool = TITLE_POOL[key]; break; } }
+  const seedBase = hashStr((state.name||'builder') + (state.role||'') );
+  const seed = shuffle ? (seedBase + Date.now()) : seedBase;
+  state.title = pool[seed % pool.length];
+  state.badgeNo = String(1000 + (hashStr((state.name||'builder')+'#') % 9000)).slice(0,4);
+  titleInput.value = state.title;
+}
+regenerateTitle(false);
+
+/* ======================= RENDER ======================= */
+let rAF = null;
+function scheduleRender(){
+  if(rAF) cancelAnimationFrame(rAF);
+  rAF = requestAnimationFrame(render);
+}
+
+function roundRectPath(c, x, y, w, h, r){
+  if(typeof r === 'number') r = {tl:r,tr:r,br:r,bl:r};
+  c.beginPath();
+  c.moveTo(x+r.tl, y);
+  c.lineTo(x+w-r.tr, y);
+  c.arcTo(x+w, y, x+w, y+r.tr, r.tr);
+  c.lineTo(x+w, y+h-r.br);
+  c.arcTo(x+w, y+h, x+w-r.br, y+h, r.br);
+  c.lineTo(x+r.bl, y+h);
+  c.arcTo(x, y+h, x, y+h-r.bl, r.bl);
+  c.lineTo(x, y+r.tl);
+  c.arcTo(x, y, x+r.tl, y, r.tl);
+  c.closePath();
+}
+
+function sunsetConic(c, cx, cy, extraRotate){
+  extraRotate = extraRotate||0;
+  if(c.createConicGradient){
+    const g = c.createConicGradient(extraRotate, cx, cy);
+    g.addColorStop(0,'#ff2e76'); g.addColorStop(.32,'#ff5a36'); g.addColorStop(.55,'#ffb238');
+    g.addColorStop(.78,'#c6ff4a'); g.addColorStop(1,'#ff2e76');
+    return g;
+  }
+  const g = c.createLinearGradient(cx-500,cy-500,cx+500,cy+500);
+  g.addColorStop(0,'#ff2e76'); g.addColorStop(.5,'#ff5a36'); g.addColorStop(1,'#ffb238');
+  return g;
+}
+
+function curvedText(c, text, cx, cy, radius, totalAngleGuess, font, color, letterSpacing){
+  c.save();
+  c.font = font; c.fillStyle = color; c.textBaseline='middle'; c.textAlign='center';
+  const widths = [...text].map(ch=>c.measureText(ch).width + letterSpacing);
+  const total = widths.reduce((a,b)=>a+b,0);
+  const angles = widths.map(w => (w/total) * totalAngleGuess);
+  const totalAngle = angles.reduce((a,b)=>a+b,0);
+  c.translate(cx, cy);
+  c.rotate(-totalAngle/2);
+  for(let i=0;i<text.length;i++){
+    c.rotate(angles[i]/2);
+    c.save();
+    c.translate(0, radius);
+    c.fillText(text[i], 0, 0);
+    c.restore();
+    c.rotate(angles[i]/2);
+  }
+  c.restore();
+}
+
+function circuitPalm(c, x, y, scale, mirror){
+  c.save();
+  c.translate(x,y);
+  c.scale(mirror?-scale:scale, scale);
+  c.strokeStyle = 'rgba(198,255,74,.85)';
+  c.lineWidth = 3;
+  c.lineCap='round';
+  const fronds = [[0,0, -18,-10, -34,-6],[0,0,-14,-22,-24,-38],[0,0,4,-24,4,-44],[0,0,20,-18,34,-24]];
+  fronds.forEach(f=>{
+    c.beginPath(); c.moveTo(f[0],f[1]); c.quadraticCurveTo(f[2],f[3],f[4],f[5]); c.stroke();
+    c.beginPath(); c.arc(f[4],f[5],3,0,Math.PI*2); c.fillStyle='rgba(198,255,74,.9)'; c.fill();
+  });
+  c.beginPath(); c.moveTo(0,0); c.lineTo(0,24); c.stroke();
+  c.beginPath(); c.arc(0,0,4.5,0,Math.PI*2); c.fillStyle='rgba(255,178,56,.95)'; c.fill();
+  c.restore();
+}
+
+function fitText(c, text, maxWidth, startSize, font, minSize){
+  let size = startSize;
+  while(size > minSize){
+    c.font = font(size);
+    if(c.measureText(text).width <= maxWidth) break;
+    size -= 2;
+  }
+  return size;
+}
+
+function render(){
+  if(!state.fontsReady) return;
+  if(state.format === 'pfp') renderPFP(); else renderCard();
+}
+
+function coverRect(boxX, boxY, boxW, boxH){
+  // uses state.tx/ty/zoom (from the adjust box, in CSS px) proportionally mapped to boxW/boxH
+  const rect = adjustBox.getBoundingClientRect();
+  const refSize = state.boxSize || rect.width || 1;
+  const s = boxW / refSize;
+  const eff = currentEffScale();
+  const dw = state.iw*eff*s, dh = state.ih*eff*s;
+  const dx = boxX + state.tx*s, dy = boxY + state.ty*s;
+  return {dx,dy,dw,dh};
+}
+
+/* ---------- FORMAT A: PFP FRAME ---------- */
+function renderPFP(){
+  const S = 1080;
+  canvas.width = S; canvas.height = S;
+  ctx.clearRect(0,0,S,S);
+
+  // base bg (shows if no photo yet)
+  const bg = ctx.createLinearGradient(0,0,S,S);
+  bg.addColorStop(0,'#0d2136'); bg.addColorStop(1,'#071019');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,S,S);
+
+  if(state.img){
+    const {dx,dy,dw,dh} = coverRect(0,0,S,S);
+    ctx.save();
+    roundRectPath(ctx,0,0,S,S,60);
+    ctx.clip();
+    ctx.drawImage(state.img, dx, dy, dw, dh);
+    ctx.restore();
+    // subtle edge vignette so ring reads cleanly on any photo
+    const vg = ctx.createRadialGradient(S/2,S/2,S*0.30, S/2,S/2,S*0.56);
+    vg.addColorStop(0,'rgba(7,16,25,0)'); vg.addColorStop(1,'rgba(7,16,25,.55)');
+    ctx.fillStyle = vg; ctx.fillRect(0,0,S,S);
+  } else {
+    ctx.save();
+    ctx.font = '600 34px "Space Grotesk"';
+    ctx.fillStyle = 'rgba(245,236,214,.5)';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('Upload a photo to preview', S/2, S/2);
+    ctx.restore();
+  }
+
+  // ring
+  const cx=S/2, cy=S/2, r=478, ringW=54;
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.lineWidth = ringW;
+  ctx.strokeStyle = sunsetConic(ctx, cx, cy, -Math.PI/2);
+  ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r-ringW/2-4,0,Math.PI*2);
+  ctx.lineWidth=2; ctx.strokeStyle='rgba(7,16,25,.55)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,r+ringW/2+4,0,Math.PI*2);
+  ctx.strokeStyle='rgba(7,16,25,.35)'; ctx.stroke();
+  ctx.restore();
+
+  // curved wordmark along bottom of ring
+  curvedText(ctx, 'HH GOA 2026', cx, cy, r, Math.PI*0.62, '700 46px "Space Grotesk"', '#0d1420', 6);
+
+  // top accent: small sun + circuit tick marks
+  ctx.save();
+  ctx.translate(cx, cy-r);
+  ctx.beginPath(); ctx.arc(0,0,14,0,Math.PI*2);
+  ctx.fillStyle='#0d1420'; ctx.fill();
+  ctx.beginPath(); ctx.arc(0,0,7,0,Math.PI*2); ctx.fillStyle='#ffe3a8'; ctx.fill();
+  ctx.restore();
+
+  // corner circuit-palm doodles (outside ring, inside square corners)
+  ctx.save();
+  ctx.globalAlpha = .9;
+  circuitPalm(ctx, 96, S-96, 1.0, false);
+  circuitPalm(ctx, S-96, 96, 1.0, true);
+  ctx.restore();
+
+  // rounded outer frame edge
+  ctx.save();
+  roundRectPath(ctx,6,6,S-12,S-12,56);
+  ctx.lineWidth=6; ctx.strokeStyle='rgba(245,236,214,.18)'; ctx.stroke();
+  ctx.restore();
+
+  finalizeButtons();
+}
+
+/* ---------- FORMAT B: BUILDER ID CARD ---------- */
+function renderCard(){
+  const W=1080, H=1350;
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  // background
+  ctx.fillStyle = '#0a1826';
+  roundRectPath(ctx,0,0,W,H,46); ctx.fill();
+  const glow = ctx.createRadialGradient(W/2,-60,80, W/2,-60,720);
+  glow.addColorStop(0,'rgba(255,90,54,.38)'); glow.addColorStop(1,'rgba(255,90,54,0)');
+  ctx.save(); roundRectPath(ctx,0,0,W,H,46); ctx.clip();
+  ctx.fillStyle=glow; ctx.fillRect(0,0,W,H);
+  // faint grid
+  ctx.globalAlpha=.05; ctx.strokeStyle='#f5ecd6'; ctx.lineWidth=1;
+  for(let x=0;x<=W;x+=54){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<=H;y+=54){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  ctx.globalAlpha=1;
+  ctx.restore();
+
+  // outer border
+  roundRectPath(ctx,10,10,W-20,H-20,40);
+  ctx.lineWidth=2; ctx.strokeStyle='rgba(245,236,214,.14)'; ctx.stroke();
+
+  // lanyard hole
+  ctx.save();
+  ctx.setLineDash([8,7]);
+  ctx.beginPath(); ctx.moveTo(60,58); ctx.lineTo(W-60,58);
+  ctx.strokeStyle='rgba(245,236,214,.18)'; ctx.lineWidth=2; ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath(); ctx.arc(W/2,58,17,0,Math.PI*2);
+  ctx.fillStyle='#050c14'; ctx.fill();
+  ctx.lineWidth=2; ctx.strokeStyle='rgba(245,236,214,.25)'; ctx.stroke();
+  ctx.restore();
+
+  // header wordmark
+  ctx.textAlign='center';
+  ctx.font='600 22px "JetBrains Mono"';
+  ctx.fillStyle='rgba(245,236,214,.55)';
+  ctx.fillText('H A C K E R   H O U S E', W/2, 128);
+
+  ctx.save();
+  const wmGrad = ctx.createLinearGradient(W/2-260,0,W/2+260,0);
+  wmGrad.addColorStop(0,'#ff2e76'); wmGrad.addColorStop(.55,'#ff5a36'); wmGrad.addColorStop(1,'#ffb238');
+  ctx.font='700 92px "Space Grotesk"';
+  ctx.fillStyle=wmGrad;
+  ctx.fillText('GOA 2026', W/2, 220);
+  ctx.restore();
+
+  circuitPalm(ctx, 118, 200, 0.9, false);
+  circuitPalm(ctx, W-118, 200, 0.9, true);
+
+  // divider
+  ctx.beginPath(); ctx.moveTo(90,266); ctx.lineTo(W-90,266);
+  ctx.strokeStyle='rgba(245,236,214,.14)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  // photo panel
+  const pW=560, pH=560, pX=(W-pW)/2, pY=306;
+  ctx.save();
+  roundRectPath(ctx,pX,pY,pW,pH,28);
+  ctx.clip();
+  if(state.img){
+    const {dx,dy,dw,dh} = coverRect(pX,pY,pW,pH);
+    ctx.drawImage(state.img, dx,dy,dw,dh);
+  } else {
+    ctx.fillStyle='#12283d'; ctx.fillRect(pX,pY,pW,pH);
+    ctx.font='500 24px "Inter"'; ctx.fillStyle='rgba(245,236,214,.4)'; ctx.textAlign='center';
+    ctx.fillText('Your photo', pX+pW/2, pY+pH/2);
+  }
+  ctx.restore();
+  ctx.save();
+  roundRectPath(ctx,pX,pY,pW,pH,28);
+  ctx.lineWidth=12;
+  ctx.strokeStyle = sunsetConic(ctx, pX+pW/2, pY+pH/2, -Math.PI/2);
+  ctx.stroke();
+  ctx.restore();
+
+  // name
+  let y = pY+pH+92;
+  const name = (state.name || 'Your Name Here').toUpperCase();
+  const size = fitText(ctx, name, W-160, 62, s=>`700 ${s}px "Space Grotesk"`, 30);
+  ctx.font = `700 ${size}px "Space Grotesk"`;
+  ctx.fillStyle='#f5ecd6'; ctx.textAlign='center';
+  ctx.fillText(name, W/2, y);
+
+  // role pills
+  y += 56;
+  const roleParts = (state.role || 'Builder').split(/[,/&]| and /i).map(s=>s.trim()).filter(Boolean).slice(0,3);
+  ctx.font='600 24px "JetBrains Mono"';
+  const gap=14, padX=22, chipH=44;
+  const widths = roleParts.map(t=>ctx.measureText(t.toUpperCase()).width+padX*2);
+  const totalW = widths.reduce((a,b)=>a+b,0) + gap*(widths.length-1);
+  let cx0 = W/2 - totalW/2;
+  roleParts.forEach((t,i)=>{
+    const w = widths[i];
+    ctx.save();
+    roundRectPath(ctx, cx0, y-chipH/2, w, chipH, 99);
+    ctx.fillStyle='rgba(198,255,74,.12)';
+    ctx.fill();
+    ctx.lineWidth=1.5; ctx.strokeStyle='rgba(198,255,74,.45)'; ctx.stroke();
+    ctx.fillStyle='#c6ff4a'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(t.toUpperCase(), cx0+w/2, y+2);
+    ctx.restore();
+    cx0 += w+gap;
+  });
+
+  // builder title
+  y += 84;
+  ctx.font='500 20px "JetBrains Mono"';
+  ctx.fillStyle='rgba(245,236,214,.5)'; ctx.textAlign='center'; ctx.textBaseline='alphabetic';
+  ctx.fillText('A K A', W/2, y);
+  y += 46;
+  const title = (state.title || 'Ship-It Sunworshipper');
+  const tsize = fitText(ctx, title, W-140, 46, s=>`700 ${s}px "Space Grotesk"`, 26);
+  ctx.save();
+  const tGrad = ctx.createLinearGradient(W/2-260,0,W/2+260,0);
+  tGrad.addColorStop(0,'#ffb238'); tGrad.addColorStop(1,'#ff5a36');
+  ctx.font=`700 ${tsize}px "Space Grotesk"`;
+  ctx.fillStyle=tGrad;
+  ctx.fillText(title, W/2, y);
+  ctx.restore();
+
+  // footer divider
+  const fy = H-118;
+  ctx.beginPath(); ctx.moveTo(90,fy); ctx.lineTo(W-90,fy);
+  ctx.strokeStyle='rgba(245,236,214,.14)'; ctx.lineWidth=1.5; ctx.stroke();
+
+  ctx.font='600 20px "JetBrains Mono"';
+  ctx.fillStyle='rgba(245,236,214,.55)';
+  ctx.textAlign='left'; ctx.fillText('BADGE NO. '+state.badgeNo, 90, fy+48);
+  ctx.textAlign='right'; ctx.fillText('GOA · IN · 2026', W-90, fy+48);
+
+  // barcode-ish deterministic pattern
+  ctx.save();
+  const seed = hashStr(state.badgeNo+(state.name||''));
+  let bx = W/2-90;
+  for(let i=0;i<26;i++){
+    const bit = (seed >> (i%24)) & 1;
+    const w = bit ? 5 : 2;
+    ctx.fillStyle = i%3===0 ? '#ff5a36' : 'rgba(245,236,214,.8)';
+    ctx.fillRect(bx, fy+18, w, 26);
+    bx += w+3;
+  }
+  ctx.restore();
+
+  // scalloped bottom edge
+  ctx.save();
+  ctx.fillStyle='#0a1826';
+  for(let x=26;x<=W-26;x+=42){
+    ctx.beginPath(); ctx.arc(x,H,11,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+
+  finalizeButtons();
+}
+
+function finalizeButtons(){
+  const hasImg = !!state.img;
+  $('downloadBtn').disabled = !hasImg;
+  $('shareBtn').disabled = !hasImg;
+}
+
+/* ======================= DOWNLOAD / SHARE ======================= */
+function filename(){
+  return state.format==='pfp' ? 'hh-goa-2026-pfp.png' : 'hh-goa-2026-badge.png';
+}
+
+$('downloadBtn').addEventListener('click', ()=>{
+  canvas.toBlob(blob=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    toast('Image saved', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+  }, 'image/png', 1);
+});
+
+$('shareBtn').addEventListener('click', ()=>{
+  canvas.toBlob(blob=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename();
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('Image saved — attach it in the tweet', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    const caption = state.format==='pfp'
+      ? "New pfp just dropped 🌴💻 heading to HH Goa 2026 to build under the palms.\n\n#FrameInGoa"
+      : "My HH Goa 2026 builder badge is live 🌴💻 see you on the beach.\n\n#FrameInGoa";
+    setTimeout(()=>{
+      window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(caption), '_blank');
+    }, 500);
+    setTimeout(()=>URL.revokeObjectURL(url), 6000);
+  }, 'image/png', 1);
+});
+
+/* ======================= INIT ======================= */
+setFormat('pfp');
+render();
+</script>
+</body>
+</html>
